@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkillShift – Earn While You Learn</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+/* ════════  TOKENS  ════════ */
+:root{
+  --bg:#03070F;--surface:#070E1C;--card:#0C1628;
+  --b1:#1A56DB;--b2:#3B82F6;--b3:#93C5FD;--b4:#DBEAFE;
+  --accent:#2563EB;
+  --glow-clr:rgba(37,99,235,.22);--glow:0 0 48px var(--glow-clr);
+  --text:#EFF6FF;--muted:#60788F;--border:rgba(255,255,255,.07);
+  --grad:linear-gradient(135deg,#1A56DB 0%,#3B82F6 100%);
+  --grad-h:linear-gradient(135deg,#2563EB 0%,#60A5FA 100%);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0}
+
+/* ════  SCROLL REVEAL  ════ */
+.reveal{opacity:0;transform:translateY(38px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-44px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal-left.visible{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(44px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal-right.visible{opacity:1;transform:translateX(0)}
+.stagger>*{opacity:0;transform:translateY(30px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+.stagger.visible>*{opacity:1;transform:translateY(0)}
+.stagger.visible>*:nth-child(1){transition-delay:.05s}.stagger.visible>*:nth-child(2){transition-delay:.15s}
+.stagger.visible>*:nth-child(3){transition-delay:.25s}.stagger.visible>*:nth-child(4){transition-delay:.35s}
+.stagger.visible>*:nth-child(5){transition-delay:.45s}.stagger.visible>*:nth-child(6){transition-delay:.55s}
+
+/* ════  NAV  ════ */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 60px;background:rgba(3,7,15,.72);
+  backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:background .3s}
+nav.scrolled{background:rgba(3,7,15,.95)}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.45rem;color:var(--text);letter-spacing:-.5px;text-decoration:none}
+.logo span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;gap:34px;list-style:none}
+.nav-links a{text-decoration:none;color:var(--muted);font-size:.88rem;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.btn-ghost{padding:9px 20px;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:500;cursor:pointer;transition:all .2s;text-decoration:none}
+.btn-ghost:hover{border-color:var(--b2);color:var(--b3)}
+.btn-primary{padding:9px 20px;background:var(--grad);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;cursor:pointer;transition:all .25s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(37,99,235,.4)}
+
+/* ════  HERO  ════ */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:130px 20px 90px;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.2;pointer-events:none}
+.orb-1{width:640px;height:640px;background:#1E40AF;top:-220px;left:-200px;animation:drift1 14s ease-in-out infinite alternate}
+.orb-2{width:540px;height:540px;background:#3B82F6;bottom:-160px;right:-180px;animation:drift2 16s ease-in-out infinite alternate}
+.orb-3{width:360px;height:360px;background:#1D4ED8;top:50%;left:50%;animation:drift3 11s ease-in-out infinite alternate}
+@keyframes drift1{from{transform:translate(0,0)}to{transform:translate(50px,35px)}}
+@keyframes drift2{from{transform:translate(0,0)}to{transform:translate(-40px,28px)}}
+@keyframes drift3{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.18)}}
+.hero::after{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(59,130,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.04) 1px,transparent 1px);
+  background-size:64px 64px;pointer-events:none;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%)}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(37,99,235,.1);border:1px solid rgba(59,130,246,.3);border-radius:100px;padding:6px 18px;font-size:.78rem;font-weight:500;color:var(--b3);margin-bottom:28px;animation:fadeUp .7s ease both}
+.hero-badge .dot{width:7px;height:7px;background:var(--b2);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2.8rem,7vw,5.6rem);font-weight:800;line-height:1.06;letter-spacing:-2px;max-width:920px;animation:fadeUp .85s .1s ease both}
+.hl{background:var(--grad-h);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{max-width:540px;margin:26px auto 0;font-size:1.06rem;line-height:1.72;color:var(--muted);font-weight:300;animation:fadeUp .85s .2s ease both}
+.hero-actions{display:flex;gap:14px;justify-content:center;margin-top:42px;animation:fadeUp .85s .3s ease both;flex-wrap:wrap}
+.btn-large{padding:15px 36px;font-size:.98rem;border-radius:12px}
+.hero-stats{display:flex;justify-content:center;margin-top:72px;padding-top:48px;border-top:1px solid var(--border);animation:fadeUp .85s .45s ease both;flex-wrap:wrap}
+.stat{text-align:center;padding:0 40px;position:relative}
+.stat+.stat::before{content:'';position:absolute;left:0;top:20%;height:60%;width:1px;background:var(--border)}
+.stat-num{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;background:var(--grad-h);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:.82rem;color:var(--muted);margin-top:4px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+.floating-tag{display:inline-flex;align-items:center;gap:8px;position:absolute;background:rgba(12,22,40,.9);border:1px solid rgba(59,130,246,.18);border-radius:100px;padding:9px 18px;font-size:.78rem;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(12px)}
+.ft-dot{width:7px;height:7px;border-radius:50%;background:var(--b2)}
+.ft1{top:32%;left:3%;animation:bob 4.5s ease-in-out infinite}
+.ft2{top:48%;right:3%;animation:bob 5s ease-in-out infinite .8s}
+.ft3{top:68%;left:6%;animation:bob 4.2s ease-in-out infinite .4s}
+.ft4{top:78%;right:6%;animation:bob 5.3s ease-in-out infinite .2s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@media(max-width:700px){.floating-tag{display:none}}
+
+/* ════  SHARED  ════ */
+section{position:relative;z-index:1}
+.container{max-width:1160px;margin:0 auto;padding:0 40px}
+.section-label{font-size:.74rem;font-weight:700;letter-spacing:3.5px;color:var(--b2);text-transform:uppercase;margin-bottom:14px}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(1.9rem,4vw,2.9rem);font-weight:800;letter-spacing:-1px;line-height:1.1}
+.section-sub{color:var(--muted);font-size:.97rem;line-height:1.72;max-width:520px;margin-top:14px;font-weight:300}
+.divider{width:44px;height:3px;background:var(--grad);border-radius:2px;margin:18px 0}
+
+/* ════  HOW IT WORKS  ════ */
+.how{padding:120px 0}
+.how-header{text-align:center;margin-bottom:70px}
+.how-header .section-sub{margin:14px auto 0}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.step-card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:38px 32px;position:relative;transition:transform .32s,box-shadow .32s,border-color .32s}
+.step-card:hover{transform:translateY(-8px);box-shadow:var(--glow);border-color:rgba(59,130,246,.3)}
+.step-num{font-family:'Syne',sans-serif;font-size:4.5rem;font-weight:800;color:rgba(59,130,246,.07);position:absolute;top:22px;right:26px;line-height:1;pointer-events:none}
+.step-icon{width:50px;height:50px;background:linear-gradient(135deg,rgba(26,86,219,.18),rgba(59,130,246,.1));border:1px solid rgba(59,130,246,.2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:22px}
+.step-card h3{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:12px}
+.step-card p{color:var(--muted);font-size:.9rem;line-height:1.68;font-weight:300}
+
+/* ════  AUDIENCE  ════ */
+.audience{padding:80px 0 120px}
+.audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.audience-card{border-radius:28px;padding:52px 46px;position:relative;overflow:hidden;transition:transform .35s,box-shadow .35s}
+.audience-card:hover{transform:translateY(-6px)}
+.audience-card.students{background:linear-gradient(145deg,#071428 0%,#0C1A30 60%,#091020 100%);border:1px solid rgba(37,99,235,.3)}
+.audience-card.companies{background:linear-gradient(145deg,#071428 0%,#0A1525 60%,#071020 100%);border:1px solid rgba(96,165,250,.2)}
+.audience-card::before{content:'';position:absolute;top:-90px;right:-90px;width:280px;height:280px;border-radius:50%;filter:blur(90px);opacity:.14}
+.students::before{background:#1A56DB}.companies::before{background:#60A5FA}
+.audience-tag{display:inline-block;padding:5px 14px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:26px}
+.students .audience-tag{background:rgba(26,86,219,.15);color:#93C5FD;border:1px solid rgba(26,86,219,.3)}
+.companies .audience-tag{background:rgba(96,165,250,.1);color:#BAD8FC;border:1px solid rgba(96,165,250,.2)}
+.audience-card h2{font-family:'Syne',sans-serif;font-size:1.85rem;font-weight:800;letter-spacing:-.5px;margin-bottom:14px;line-height:1.2}
+.audience-card>p{color:var(--muted);font-size:.93rem;line-height:1.7;font-weight:300;margin-bottom:30px}
+.feature-list{list-style:none;display:flex;flex-direction:column;gap:13px;margin-bottom:38px}
+.feature-list li{display:flex;align-items:flex-start;gap:12px;font-size:.9rem;color:var(--text)}
+.check{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;margin-top:1px}
+.students .check{background:rgba(37,99,235,.2);color:#93C5FD}
+.companies .check{background:rgba(96,165,250,.15);color:#BAD8FC}
+.btn-audience{padding:13px 28px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .25s;text-decoration:none;display:inline-block;border:none}
+.students .btn-audience{background:var(--grad);color:#fff}
+.students .btn-audience:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,86,219,.45)}
+.companies .btn-audience{background:transparent;color:var(--b3);border:1.5px solid rgba(96,165,250,.4)}
+.companies .btn-audience:hover{background:rgba(96,165,250,.08);transform:translateY(-2px)}
+
+/* ════  FEATURES  ════ */
+.features{padding:80px 0 120px;background:var(--surface)}
+.features-header{margin-bottom:60px}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px 28px;transition:all .32s;position:relative;overflow:hidden}
+.feature-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--grad);transform:scaleX(0);transition:transform .35s;transform-origin:left}
+.feature-card:hover{border-color:rgba(59,130,246,.25);transform:translateY(-5px);box-shadow:0 16px 48px rgba(0,0,0,.25)}
+.feature-card:hover::after{transform:scaleX(1)}
+.feature-icon{font-size:1.75rem;margin-bottom:18px;display:block}
+.feature-card h4{font-family:'Syne',sans-serif;font-size:1.02rem;font-weight:700;margin-bottom:10px}
+.feature-card p{color:var(--muted);font-size:.86rem;line-height:1.65;font-weight:300}
+
+
+/* ════  CTA  ════ */
+.cta-section{padding:120px 40px;text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(37,99,235,.09) 0%,transparent 70%)}
+.cta-box{max-width:740px;margin:0 auto;position:relative}
+.cta-box h2{font-family:'Syne',sans-serif;font-size:clamp(2.1rem,4.5vw,3.3rem);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:18px}
+.cta-box p{color:var(--muted);font-size:.97rem;line-height:1.7;margin-bottom:38px;font-weight:300}
+.cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* ════  WAITLIST  ════ */
+.waitlist-section{padding:100px 20px 130px;position:relative;z-index:1;background:var(--bg)}
+.waitlist-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 50%,rgba(26,86,219,.06) 0%,transparent 70%);pointer-events:none}
+.waitlist-section::after{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(59,130,246,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.03) 1px,transparent 1px);
+  background-size:56px 56px;pointer-events:none;
+  mask-image:radial-gradient(ellipse 90% 80% at 50% 50%,black 30%,transparent 100%)}
+.waitlist-header{text-align:center;margin-bottom:52px}
+.waitlist-header .section-sub{margin:14px auto 0;max-width:480px}
+.wl-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(26,86,219,.1);border:1px solid rgba(59,130,246,.25);border-radius:100px;padding:6px 18px;font-size:.78rem;font-weight:500;color:var(--b3);margin-bottom:20px}
+.wl-badge .dot{width:6px;height:6px;background:var(--b2);border-radius:50%;animation:pulse 2s infinite}
+
+/* Tab switcher */
+.form-tabs{display:flex;justify-content:center;margin-bottom:36px;gap:0}
+.form-tab{padding:13px 44px;font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--muted);transition:all .25s;position:relative}
+.form-tab:first-child{border-radius:12px 0 0 12px}
+.form-tab:last-child{border-radius:0 12px 12px 0;border-left:none}
+.form-tab.active{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 24px rgba(26,86,219,.35)}
+.form-tab:not(.active):hover{border-color:rgba(59,130,246,.3);color:var(--b3)}
+
+/* Dual layout */
+.forms-dual{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  max-width:100%;
+  margin:0 auto;
+}
+.waitlist-card{background:rgba(7,14,28,.9);border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:56px 52px;backdrop-filter:blur(24px);box-shadow:0 32px 80px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
+.waitlist-card::before{content:'';position:absolute;top:-1px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,rgba(37,99,235,.5),transparent)}
+
+.wl-card-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.wl-card-sub{color:var(--muted);font-size:.9rem;margin-bottom:32px;line-height:1.55}
+
+/* Form elements */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.form-label{font-size:.8rem;font-weight:500;color:var(--text);display:flex;align-items:center;gap:4px}
+.req{color:var(--b2);font-size:.7rem}
+.form-input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:13px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;transition:all .25s;outline:none;-webkit-appearance:none;appearance:none}
+.form-input::placeholder{color:var(--muted)}
+.form-input:focus{border-color:rgba(37,99,235,.5);background:rgba(26,86,219,.05);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+select.form-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2360788F' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+select.form-input option{background:#0C1628}
+.form-hint{font-size:.74rem;color:var(--muted);margin-top:4px}
+.form-label{font-size:.85rem;font-weight:500;color:var(--text);display:flex;align-items:center;gap:4px}
+.form-input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:16px 18px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.95rem;transition:all .25s;outline:none;-webkit-appearance:none;appearance:none}
+
+.btn-waitlist{width:100%;margin-top:28px;padding:18px;background:var(--grad);color:#fff;font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;border:none;border-radius:12px;cursor:pointer;transition:all .3s;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* Submit btn — BLUE */
+.btn-waitlist{width:100%;margin-top:24px;padding:15px;background:var(--grad);color:#fff;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;border:none;border-radius:12px;cursor:pointer;transition:all .3s;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-waitlist:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(26,86,219,.5);filter:brightness(1.08)}
+.btn-waitlist:active{transform:translateY(0)}
+.btn-waitlist:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-waitlist .spinner{width:17px;height:17px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.form-footer-note{text-align:center;font-size:.74rem;color:var(--muted);margin-top:14px}
+.form-footer-note a{color:var(--b3);text-decoration:none}
+
+.success-box{display:none;text-align:center;padding:36px 14px}
+.success-icon{width:68px;height:68px;border-radius:50%;background:rgba(26,86,219,.12);border:1.5px solid rgba(37,99,235,.35);display:flex;align-items:center;justify-content:center;font-size:1.9rem;margin:0 auto 20px}
+.success-box h3{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:10px}
+.success-box p{color:var(--muted);font-size:.9rem;line-height:1.7}
+
+.form-error{background:rgba(239,68,68,.09);border:1px solid rgba(239,68,68,.22);border-radius:10px;padding:11px 15px;font-size:.8rem;color:#FCA5A5;margin-top:12px;display:none}
+
+/* ════  FOOTER  ════ */
+footer{background:var(--surface);border-top:1px solid var(--border);padding:60px 40px 32px}
+.footer-inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;padding-bottom:48px;border-bottom:1px solid var(--border);margin-bottom:32px}
+.footer-brand p{color:var(--muted);font-size:.84rem;line-height:1.7;margin-top:10px;max-width:250px;font-weight:300}
+.footer-col h5{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:1.2px}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-col a{text-decoration:none;color:var(--muted);font-size:.84rem;transition:color .2s}
+.footer-col a:hover{color:var(--b3)}
+.footer-bottom{max-width:1160px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;font-size:.78rem;color:var(--muted);flex-wrap:wrap;gap:10px}
+
+/* ════  RESPONSIVE  ════ */
+@media(max-width:900px){
+  nav{padding:14px 20px}.nav-links{display:none}
+  .steps-grid,.features-grid,.testi-grid{grid-template-columns:1fr}
+  .audience-grid{grid-template-columns:1fr}
+  .forms-dual{grid-template-columns:1fr}
+  .footer-inner{grid-template-columns:1fr 1fr}
+  .container{padding:0 20px}
+  .audience-card{padding:36px 26px}
+ .forms-dual{grid-template-columns:1fr;max-width:600px}
+  .waitlist-card{padding:42px 32px}
+}
+@media(max-width:640px){
+  .form-row{grid-template-columns:1fr}
+  .form-tab{padding:12px 24px;font-size:.82rem}
+  .stat{padding:0 16px}
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a class="logo" href="#">Skill<span>Shift</span></a>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#students">Students</a></li>
+    <li><a href="#companies">Companies</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#waitlist">Waitlist</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a class="btn-ghost" href="#waitlist" onclick="switchTab('company')">For Startups</a>
+    <a class="btn-primary" href="#waitlist" onclick="switchTab('student')">Join Waitlist →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="hero-badge"><span class="dot"></span> Early access now open — limited spots</div>
+  <h1>Skills that <span class="hl">pay.</span><br/>Experience that <span class="hl">counts.</span></h1>
+  <p class="hero-sub">Connecting talent and real work — enabling execution, growth, and verified experience in one platform.</p>
+  <div class="hero-actions">
+    <a class="btn-primary btn-large" href="#waitlist" onclick="switchTab('student')">Join as a Student →</a>
+    <a class="btn-ghost btn-large" href="#waitlist" onclick="switchTab('company')">Hire Student Talent</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">2K+</div><div class="stat-label">Students Onboarded</div></div>
+    <div class="stat"><div class="stat-num">300+</div><div class="stat-label">Startup Partners</div></div>
+    <div class="stat"><div class="stat-num">98%</div><div class="stat-label">Satisfaction Rate</div></div>
+    <div class="stat"><div class="stat-num">15+</div><div class="stat-label">Skill Domains</div></div>
+  </div>
+  <div class="floating-tag ft1"><span class="ft-dot"></span> Curated Talent Matching</div>
+  <div class="floating-tag ft2"><span class="ft-dot"></span> Real Project Experience</div>
+  <div class="floating-tag ft3"><span class="ft-dot"></span> Verified Work Proof</div>
+  <div class="floating-tag ft4"><span class="ft-dot"></span> Structured Task Workflow</div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="how-header reveal">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title">Three steps to real-world impact</h2>
+      <p class="section-sub">Whether you're a student building skills or a startup seeking talent, SkillShift makes the path effortless.</p>
+    </div>
+    <div class="steps-grid stagger">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">🎓</div>
+        <h3>Create Your Profile</h3>
+        <p>Sign up, select your domain, and complete a quick skill assessment. Skilled students jump straight to projects — others get a personalised learning path.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">🔗</div>
+        <h3>Match with Projects</h3>
+        <p>Our eligibility-based system matches you with startup projects aligned to your skills and academic field — no random listings, only relevant work.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">📈</div>
+        <h3>Earn. Build. Get Recognised.</h3>
+        <p>Complete real tasks, earn income, and receive company-issued certificates. Build a portfolio that showcases real capability — not just academics.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCE -->
+<section class="audience" id="students">
+  <div class="container">
+    <div class="audience-grid">
+      <div class="audience-card students reveal-left">
+        <div class="audience-tag">For Students</div>
+        <h2>Turn your skills into verified experience</h2>
+        <p>Work on real projects, earn money, and receive company-issued certificates that prove your skills — not just your GPA.</p>
+        <ul class="feature-list">
+          <li><div class="check">✓</div><span>Get matched to projects based on your skills and readiness</span></li>
+          <li><div class="check">✓</div><span>Work on real-world tasks from startups and creators</span></li>
+          <li><div class="check">✓</div><span>Earn company-issued certificates as proof of your work</span></li>
+          <li><div class="check">✓</div><span>Build a portfolio backed by real execution, not theory</span></li>
+          <li><div class="check">✓</div><span>Earn flexibly while gaining experience in your domain</span></li>
+        </ul>
+        <a class="btn-audience" href="#waitlist" onclick="switchTab('student')">Join the Waitlist →</a>
+      </div>
+      <div class="audience-card companies reveal-right" id="companies">
+        <div class="audience-tag">For Startups</div>
+        <h2>Hire verified student talent with proven experience</h2>
+        <p>Skip the hiring overhead. Post tasks, review verified candidates, and get quality work done by students backed by real project history.</p>
+        <ul class="feature-list">
+          <li><div class="check">✓</div><span>Post structured tasks with domain-based filtering</span></li>
+          <li><div class="check">✓</div><span>Evaluate candidates through verified certificates and real work proof</span></li>
+          <li><div class="check">✓</div><span>Reduce hiring risk with performance-backed talent profiles</span></li>
+          <li><div class="check">✓</div><span>Access curated student talent across multiple skill domains</span></li>
+          <li><div class="check">✓</div><span>Scale execution without full-time hiring costs</span></li>
+        </ul>
+        <a class="btn-audience" href="#waitlist" onclick="switchTab('company')"> Hire Student Talent →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="features-header reveal">
+      <div class="section-label">Platform Features</div>
+      <h2 class="section-title">Everything you need to build real experience</h2>
+      <p class="section-sub">Connecting student talent with real work and startup needs — all in one platform.</p>
+    </div>
+    <div class="features-grid stagger">
+      <div class="feature-card">
+        <span class="feature-icon">🧠</span>
+        <h4>Skill-Based Matching</h4>
+        <p>Students are matched to real projects based on their assessed skills and domain readiness.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📚</span>
+        <h4>Real Project Experience</h4>
+        <p>Work on actual tasks from startups and creators — not simulated assignments or mock projects.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎯</span>
+        <h4>Verified Certificates</h4>
+        <p>Receive company-issued certificates for every completed project — proof that matters to employers.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">⭐</span>
+        <h4>Company Dashboard</h4>
+        <p>Manage tasks, review candidates, and track project progress from a clean, unified interface.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🔒</span>
+        <h4>Verified Profiles</h4>
+        <p>Student profiles are backed by real work history, certificates, and completed projects.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🤝</span>
+        <h4>Smart Job Matching</h4>
+        <p>Get matched to projects based on skill, domain, and proven capability — not just keywords.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-box reveal">
+    <div class="section-label" style="text-align:center">Get Started Today</div>
+    <h2>Ready to shift from<br/>grades to <span class="hl">skills?</span></h2>
+    <p>Join thousands of students and startups already transforming how talent is discovered, assessed, and employed. No fees to get started.</p>
+    <div class="cta-actions">
+      <a class="btn-primary btn-large" href="#waitlist" onclick="switchTab('student')">Join the Waitlist →</a>
+      <a class="btn-ghost btn-large" href="#waitlist" onclick="switchTab('company')">Hire Student Talent</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     WAITLIST — DUAL FORMS
+     ══════════════════════════════════════════════
+  SETUP (2 min — free):
+  1. Go to https://formspree.io → Sign up
+  2. Create 2 forms:
+     • "SkillShift Students"  → replace STUDENT_FORM_ID below
+     • "SkillShift Companies" → replace COMPANY_FORM_ID below
+  3. Set notification email kamashwaran2@gmail.com on both
+  4. Export all submissions as CSV / Excel from Formspree dashboard
+-->
+<section class="waitlist-section" id="waitlist">
+  <div class="waitlist-header reveal">
+    <div class="wl-badge"><span class="dot"></span> Early access — limited spots</div>
+    <div class="section-label">Join the Waitlist</div>
+    <h2 class="section-title">Be the first to <span class="hl">SkillShift</span></h2>
+    <p class="section-sub">Sign up now to get early access. We'll notify you the moment we launch.</p>
+  </div>
+
+  <div class="form-tabs">
+    <button class="form-tab active" id="tabStudent" onclick="switchTab('student')">🎓 &nbsp;I'm a Student</button>
+    <button class="form-tab" id="tabCompany" onclick="switchTab('company')">🏢 &nbsp;I'm a Startup / Company</button>
+  </div>
+
+  <div class="forms-dual reveal">
+
+    <!-- STUDENT FORM -->
+    <div class="waitlist-card" id="cardStudent">
+      <div class="wl-card-title">🎓 &nbsp;Student Registration</div>
+      <div class="wl-card-sub">Tell us about yourself — we'll match you with the right projects at launch.</div>
+
+      <div class="success-box" id="successStudent">
+        <div class="success-icon">🎉</div>
+        <h3>You're on the list!</h3>
+        <p>Thanks for joining as a student.<br/>We'll reach out to <strong id="emailConfirmStudent"></strong> when we launch.</p>
+      </div>
+
+      <div id="wrapStudent">
+        <form id="formStudent" action="https://formspree.io/f/xaqangbl" method="POST" novalidate>
+          <input type="hidden" name="_subject" value="🎓 New Student — SkillShift Waitlist"/>
+          <input type="hidden" name="_replyto" id="replyStudent" value=""/>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="s_fname">First Name <span class="req">*</span></label>
+              <input class="form-input" type="text" id="s_fname" name="First Name" placeholder="Arjun" required autocomplete="given-name"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="s_lname">Last Name <span class="req">*</span></label>
+              <input class="form-input" type="text" id="s_lname" name="Last Name" placeholder="Kumar" required autocomplete="family-name"/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="s_email">Gmail Address <span class="req">*</span></label>
+            <input class="form-input" type="email" id="s_email" name="Email" placeholder="yourname@gmail.com" required autocomplete="email"
+              oninput="document.getElementById('replyStudent').value=this.value"/>
+            <div class="form-hint">We currently accept Gmail addresses only.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="s_phone">Phone Number <span class="req">*</span></label>
+            <input class="form-input" type="tel" id="s_phone" name="Phone" placeholder="+91 98765 43210" required/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="s_location">Location <span class="req">*</span></label>
+            <input class="form-input" type="text" id="s_location" name="Location" placeholder="Chennai, Tamil Nadu" required/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="s_college">College / University <span class="req">*</span></label>
+            <input class="form-input" type="text" id="s_college" name="College" placeholder="e.g. Anna University" required/>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="s_degree">Degree <span class="req">*</span></label>
+              <select class="form-input" id="s_degree" name="Degree" required>
+                <option value="" disabled selected>Select</option>
+                <option>B.Tech</option><option>B.E.</option><option>B.Sc</option>
+                <option>B.Com</option><option>B.Des</option><option>BBA</option>
+                <option>MBA</option><option>M.Tech</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="s_year">Year <span class="req">*</span></label>
+              <select class="form-input" id="s_year" name="Year" required>
+                <option value="" disabled selected>Select</option>
+                <option>1st Year</option><option>2nd Year</option>
+                <option>3rd Year</option><option>4th Year</option><option>Final Year</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="s_domain">Primary Skill Domain <span class="req">*</span></label>
+            <select class="form-input" id="s_domain" name="Skill Domain" required>
+              <option value="" disabled selected>Select your domain</option>
+              <option>Web Development</option><option>UI/UX Design</option>
+              <option>Data Science / ML</option><option>Mobile Development</option>
+              <option>Digital Marketing</option><option>Content Writing</option>
+              <option>Video Editing</option><option>Graphic Design</option>
+              <option>Finance / Accounting</option><option>Business Development</option><option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-error" id="errStudent"></div>
+          <button type="submit" class="btn-waitlist" id="btnStudent">
+            <span class="spinner" id="spinStudent"></span>
+            <span id="txtStudent">Join as a Student →</span>
+          </button>
+          <p class="form-footer-note">🔒 No spam. Used only to notify you about SkillShift.<br/>Questions? <a href="mailto:kamashwaran2@gmail.com">Contact us</a></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- COMPANY FORM -->
+    <div class="waitlist-card" id="cardCompany" style="display:none">
+      <div class="wl-card-title">🏢 &nbsp;Company Registration</div>
+      <div class="wl-card-sub">Tell us about your startup — we'll give you early access to student talent at launch.</div>
+
+      <div class="success-box" id="successCompany">
+        <div class="success-icon">🚀</div>
+        <h3>You're on the list!</h3>
+        <p>Thanks for registering your company.<br/>We'll reach out to <strong id="emailConfirmCompany"></strong> with early access details.</p>
+      </div>
+
+      <div id="wrapCompany">
+        <form id="formCompany" action="https://formspree.io/f/myklkywo" method="POST" novalidate>
+          <input type="hidden" name="_subject" value="🏢 New Company — SkillShift Waitlist"/>
+          <input type="hidden" name="_replyto" id="replyCompany" value=""/>
+
+          <div class="form-group">
+            <label class="form-label" for="c_company">Company / Startup Name <span class="req">*</span></label>
+            <input class="form-input" type="text" id="c_company" name="Company Name" placeholder="e.g. NestFin, BuildHive" required/>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="c_fname">Contact First Name <span class="req">*</span></label>
+              <input class="form-input" type="text" id="c_fname" name="Contact First Name" placeholder="Rahul" required autocomplete="given-name"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="c_lname">Contact Last Name <span class="req">*</span></label>
+              <input class="form-input" type="text" id="c_lname" name="Contact Last Name" placeholder="Iyer" required autocomplete="family-name"/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="c_email">Gmail Address <span class="req">*</span></label>
+            <input class="form-input" type="email" id="c_email" name="Email" placeholder="work@gmail.com" required autocomplete="email"
+              oninput="document.getElementById('replyCompany').value=this.value"/>
+            <div class="form-hint">We currently accept Gmail addresses only.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="c_phone">Phone Number <span class="req">*</span></label>
+            <input class="form-input" type="tel" id="c_phone" name="Phone" placeholder="+91 98765 43210" required/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="c_location">Company Location <span class="req">*</span></label>
+            <input class="form-input" type="text" id="c_location" name="Location" placeholder="Chennai, Tamil Nadu" required/>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="c_size">Team Size <span class="req">*</span></label>
+              <select class="form-input" id="c_size" name="Team Size" required>
+                <option value="" disabled selected>Select</option>
+                <option>1–5</option><option>6–15</option><option>16–50</option>
+                <option>51–200</option><option>200+</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="c_stage">Startup Stage <span class="req">*</span></label>
+              <select class="form-input" id="c_stage" name="Stage" required>
+                <option value="" disabled selected>Select</option>
+                <option>Idea</option><option>MVP</option><option>Early Traction</option>
+                <option>Growth</option><option>Established</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="c_domain">Industry / Domain <span class="req">*</span></label>
+            <select class="form-input" id="c_domain" name="Industry" required>
+              <option value="" disabled selected>Select your industry</option>
+              <option>FinTech</option><option>EdTech</option><option>HealthTech</option>
+              <option>E-Commerce</option><option>SaaS / B2B</option><option>Consumer App</option>
+              <option>Media / Content</option><option>Marketing Agency</option>
+              <option>Logistics</option><option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="c_need">Type of Talent Needed <span class="req">*</span></label>
+            <select class="form-input" id="c_need" name="Talent Needed" required>
+              <option value="" disabled selected>Select primary need</option>
+              <option>Web / App Development</option><option>UI/UX Design</option>
+              <option>Data Science / Analytics</option><option>Digital Marketing</option>
+              <option>Content Writing</option><option>Graphic Design</option>
+              <option>Business Development</option><option>Finance / Accounting</option>
+              <option>Multiple Roles</option><option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-error" id="errCompany"></div>
+          <button type="submit" class="btn-waitlist" id="btnCompany">
+            <span class="spinner" id="spinCompany"></span>
+            <span id="txtCompany">Register My Company →</span>
+          </button>
+          <p class="form-footer-note">🔒 No spam. Used only to notify you about SkillShift.<br/>Questions? <a href="mailto:kamashwaran2@gmail.com">Contact us</a></p>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="logo" href="#">Skill<span>Shift</span></a>
+      <p>Bridging the gap between students and startups through skills-first talent and meaningful, domain-relevant work. </p>
+      <p style="margin-top: 50px;">techskillshift@gmail.com</p>
+    </div>
+    <div class="footer-col">
+      <h5>Platform</h5>
+      <ul>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#students">For Students</a></li>
+        <li><a href="#companies">For Companies</a></li>
+        <li><a href="#features">Features</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <ul>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">Case Studies</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="mailto:techskillshift@gmail.com">Contact</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 SkillShift. All rights reserved.</span>
+    <span>Built for students. Trusted by startups.</span>
+  </div>
+</footer>
+
+<script>
+/* ── SCROLL REVEAL ── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:.1,rootMargin:'0px 0px -36px 0px'});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger').forEach(el=>io.observe(el));
+
+/* ── NAV SCROLL ── */
+window.addEventListener('scroll',()=>{
+  document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>60);
+});
+
+/* ── TAB / CARD SWITCH ── */
+function switchTab(tab){
+  const ts=document.getElementById('tabStudent'),tc=document.getElementById('tabCompany');
+  const cs=document.getElementById('cardStudent'),cc=document.getElementById('cardCompany');
+  if(tab==='student'){ts.classList.add('active');tc.classList.remove('active');cs.style.display='block';cc.style.display='none';}
+  else{tc.classList.add('active');ts.classList.remove('active');cc.style.display='block';cs.style.display='none';}
+}
+
+/* ── STUDENT FORM ── */
+(function(){
+  const form=document.getElementById('formStudent'),btn=document.getElementById('btnStudent'),
+    spin=document.getElementById('spinStudent'),txt=document.getElementById('txtStudent'),
+    err=document.getElementById('errStudent'),ok=document.getElementById('successStudent'),
+    wrap=document.getElementById('wrapStudent'),conf=document.getElementById('emailConfirmStudent');
+  function isGmail(v){return /^[a-zA-Z0-9._%+\-]+@gmail\.com$/.test(v.trim())}
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();err.style.display='none';
+    const v={fname:document.getElementById('s_fname').value.trim(),lname:document.getElementById('s_lname').value.trim(),
+      eml:document.getElementById('s_email').value.trim(),phone:document.getElementById('s_phone').value.trim(),
+      loc:document.getElementById('s_location').value.trim(),col:document.getElementById('s_college').value.trim(),
+      deg:document.getElementById('s_degree').value,yr:document.getElementById('s_year').value,
+      dom:document.getElementById('s_domain').value};
+    if(Object.values(v).some(x=>!x)){err.textContent='⚠️ Please fill in all required fields.';err.style.display='block';return;}
+    if(!isGmail(v.eml)){err.textContent='⚠️ Please enter a valid Gmail address.';err.style.display='block';return;}
+    btn.disabled=true;spin.style.display='block';txt.textContent='Submitting…';
+    try{
+      const res=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}});
+      if(res.ok){conf.textContent=v.eml;wrap.style.display='none';ok.style.display='block';}
+      else throw new Error();
+    }catch{err.textContent='⚠️ Something went wrong. Email techskillshift@gmail.com';err.style.display='block';
+      btn.disabled=false;spin.style.display='none';txt.textContent='Join as a Student →';}
+  });
+})();
+
+/* ── COMPANY FORM ── */
+(function(){
+  const form=document.getElementById('formCompany'),btn=document.getElementById('btnCompany'),
+    spin=document.getElementById('spinCompany'),txt=document.getElementById('txtCompany'),
+    err=document.getElementById('errCompany'),ok=document.getElementById('successCompany'),
+    wrap=document.getElementById('wrapCompany'),conf=document.getElementById('emailConfirmCompany');
+  function isGmail(v){return /^[a-zA-Z0-9._%+\-]+@gmail\.com$/.test(v.trim())}
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();err.style.display='none';
+    const v={cname:document.getElementById('c_company').value.trim(),fname:document.getElementById('c_fname').value.trim(),
+      lname:document.getElementById('c_lname').value.trim(),eml:document.getElementById('c_email').value.trim(),
+      phone:document.getElementById('c_phone').value.trim(),loc:document.getElementById('c_location').value.trim(),
+      size:document.getElementById('c_size').value,stage:document.getElementById('c_stage').value,
+      dom:document.getElementById('c_domain').value,need:document.getElementById('c_need').value};
+    if(Object.values(v).some(x=>!x)){err.textContent='⚠️ Please fill in all required fields.';err.style.display='block';return;}
+    if(!isGmail(v.eml)){err.textContent='⚠️ Please enter a valid Gmail address.';err.style.display='block';return;}
+    btn.disabled=true;spin.style.display='block';txt.textContent='Submitting…';
+    try{
+      const res=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}});
+      if(res.ok){conf.textContent=v.eml;wrap.style.display='none';ok.style.display='block';}
+      else throw new Error();
+    }catch{err.textContent='⚠️ Something went wrong. Email kamashwaran2@gmail.com';err.style.display='block';
+      btn.disabled=false;spin.style.display='none';txt.textContent='Register My Company →';}
+  });
+})();
+</script>
+</body>
+</html>
